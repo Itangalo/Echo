@@ -1,0 +1,208 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Google Calendar API",
+    "version": "v3",
+    "description": "API for interacting with Google Calendar, focusing on retrieving calendar events within a specified time range and creating new events.",
+    "contact": {
+      "name": "Google",
+      "url": "https://developers.google.com/calendar"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://www.googleapis.com/calendar/v3"
+    }
+  ],
+  "paths": {
+    "/calendars/{calendarId}/events": {
+      "get": {
+        "summary": "Retrieves events from the specified calendar within a specified time range",
+        "description": "Returns events on the specified calendar within the given time range.",
+        "operationId": "getEvents",
+        "parameters": [
+          {
+            "name": "calendarId",
+            "in": "path",
+            "required": true,
+            "description": "Calendar identifier.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timeMin",
+            "in": "query",
+            "required": false,
+            "description": "Lower bound (inclusive) for an event's start time to filter by.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "timeMax",
+            "in": "query",
+            "required": false,
+            "description": "Upper bound (exclusive) for an event's end time to filter by.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of calendar events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventList"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Calendar not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Creates a new event in the specified calendar",
+        "description": "Creates a new event in the specified calendar.",
+        "operationId": "createEvent",
+        "parameters": [
+          {
+            "name": "calendarId",
+            "in": "path",
+            "required": true,
+            "description": "Calendar identifier.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "conferenceDataVersion",
+            "in": "query",
+            "required": false,
+            "description": "Version number of conference data supported by the API client.",
+            "schema": {
+              "type": "integer",
+              "enum": [0, 1]
+            }
+          },
+          {
+            "name": "maxAttendees",
+            "in": "query",
+            "required": false,
+            "description": "The maximum number of attendees to include in the response.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "sendNotifications",
+            "in": "query",
+            "required": false,
+            "description": "Deprecated. Please use sendUpdates instead. Whether to send notifications about the creation of the new event.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "sendUpdates",
+            "in": "query",
+            "required": false,
+            "description": "Whether to send notifications about the creation of the new event.",
+            "schema": {
+              "type": "string",
+              "enum": ["all", "externalOnly", "none"]
+            }
+          },
+          {
+            "name": "supportsAttachments",
+            "in": "query",
+            "required": false,
+            "description": "Whether API client performing operation supports event attachments.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Event object that needs to be added to the calendar",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Event"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Calendar not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EventList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "start": {
+            "type": "object",
+            "properties": {
+              "dateTime": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "end": {
+            "type": "object",
+            "properties": {
+              "dateTime": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
