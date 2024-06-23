@@ -1,202 +1,138 @@
-{
-  "openapi": "3.1.0",
-  "info": {
-    "title": "Google Drive API",
-    "version": "v3",
-    "description": "API for interacting with Google Drive, focusing on creating files.",
-    "contact": {
-      "name": "Google",
-      "url": "https://developers.google.com/drive"
-    }
-  },
-  "servers": [
-    {
-      "url": "https://www.googleapis.com/drive/v3"
-    }
-  ],
-  "paths": {
-    "/files": {
-      "post": {
-        "summary": "Creates a new file",
-        "description": "Creates a new file. This method supports an /upload URI and accepts uploaded media.",
-        "operationId": "createFile",
-        "parameters": [
-          {
-            "name": "uploadType",
-            "in": "query",
-            "description": "The type of upload request to the /upload URI. Required for media uploads.",
-            "schema": {
-              "type": "string",
-              "enum": ["media", "multipart", "resumable"]
-            }
-          },
-          {
-            "name": "enforceSingleParent",
-            "in": "query",
-            "description": "Deprecated. Creating files in multiple folders is no longer supported.",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "ignoreDefaultVisibility",
-            "in": "query",
-            "description": "Whether to ignore the domain's default visibility settings for the created file.",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "keepRevisionForever",
-            "in": "query",
-            "description": "Whether to set the 'keepForever' field in the new head revision. Applicable only to files with binary content.",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "ocrLanguage",
-            "in": "query",
-            "description": "A language hint for OCR processing during image import (ISO 639-1 code).",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "supportsAllDrives",
-            "in": "query",
-            "description": "Whether the requesting application supports both My Drives and shared drives.",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "supportsTeamDrives",
-            "in": "query",
-            "description": "Deprecated: Use supportsAllDrives instead.",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "useContentAsIndexableText",
-            "in": "query",
-            "description": "Whether to use the uploaded content as indexable text.",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "includePermissionsForView",
-            "in": "query",
-            "description": "Specifies which additional view's permissions to include in the response. Only 'published' is supported.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "includeLabels",
-            "in": "query",
-            "description": "A comma-separated list of IDs of labels to include in the labelInfo part of the response.",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "File object that needs to be added to Google Drive",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/File"
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "metadata": {
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "file": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "File created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/File"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "File not found"
-          }
-        },
-        "security": [
-          {
-            "OAuth2": [
-              "https://www.googleapis.com/auth/drive",
-              "https://www.googleapis.com/auth/drive.appdata",
-              "https://www.googleapis.com/auth/drive.file"
-            ]
-          }
-        ]
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "File": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "mimeType": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "parents": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "OAuth2": {
-        "type": "oauth2",
-        "flows": {
-          "authorizationCode": {
-            "authorizationUrl": "https://accounts.google.com/o/oauth2/auth",
-            "tokenUrl": "https://oauth2.googleapis.com/token",
-            "scopes": {
-              "https://www.googleapis.com/auth/drive": "View and manage the files in your Google Drive",
-              "https://www.googleapis.com/auth/drive.appdata": "View and manage its own configuration data in your Google Drive",
-              "https://www.googleapis.com/auth/drive.file": "View and manage Google Drive files and folders that you have opened or created with this app"
-            }
-          }
-        }
-      }
-    }
-  }
-}
+openapi: 3.1.0
+info:
+  title: Google Drive API
+  version: v3
+  description: API for interacting with Google Drive, focusing on reading and writing text files and simple Google documents.
+  contact:
+    name: Google
+    url: https://developers.google.com/drive
+servers:
+  - url: https://www.googleapis.com/drive/v3
+paths:
+  /files:
+    get:
+      summary: Lists or searches files
+      description: Lists or searches files in the user's Google Drive.
+      operationId: listFiles
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: A query for filtering the file results.
+          schema:
+            type: string
+        - name: fields
+          in: query
+          required: false
+          description: The fields to include in the response.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileList'
+    post:
+      summary: Creates a new file
+      description: Creates a new file in Google Drive.
+      operationId: createFile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/File'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+  /files/{fileId}:
+    get:
+      summary: Gets a file's metadata or content
+      description: Gets a file's metadata or content by ID.
+      operationId: getFile
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          description: The ID of the file.
+          schema:
+            type: string
+        - name: alt
+          in: query
+          required: false
+          description: Whether to return metadata or content.
+          schema:
+            type: string
+            enum: [json, media]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+            text/plain:
+              schema:
+                type: string
+    put:
+      summary: Updates a file's metadata or content
+      description: Updates a file's metadata or content.
+      operationId: updateFile
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          description: The ID of the file to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/File'
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+
+components:
+  schemas:
+    FileList:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+    File:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        mimeType:
+          type: string
+        description:
+          type: string
+        createdTime:
+          type: string
+          format: date-time
+        modifiedTime:
+          type: string
+          format: date-time
+        content:
+          type: string
